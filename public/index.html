@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HB Broker</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+</head>
+<body>
+  <section class="section">
+    <div id="app" class="container">
+      <h1 class="title">HB Broker</h1>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>UUID</th>
+              <th>Sent (Bytes)</th>
+              <th>Sent (Packets)</th>
+              <th>Last Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="val, key in reports" :key="key">
+              <td>{{ key }}</td>
+              <td>{{ val.SentBytes }}</td>
+              <td>{{ val.SentPackets }}</td>
+              <td>{{ val.LastError }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        reports: {},
+      },
+      mounted() {
+        setInterval(() => {
+          axios.get('/xhr').then((resp) => {
+            this.reports = resp.data;
+          });
+        }, 1000);
+      }
+    });
+  </script>
+</body>
+</html>
