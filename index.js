@@ -33,7 +33,7 @@ app.get('/renew/:uuid/:ip', async (req, res) => {
 app.post('/register', async (_, res) => {
   const newUUID = v4();
   const newTargets = [];
-  for (let i = 0; i < 128; i++) {
+  for (let i = 0; i < 64; i++) {
     newTargets.push(storage.getNextIp());
   }
   await storage.setValue(newUUID, newTargets);
