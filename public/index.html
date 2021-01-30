@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HB Broker</title>
+  <title>Heartbreak Broker</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
 </head>
 <body>
   <section class="section">
     <div id="app" class="container">
       <h1 class="title">HB Broker</h1>
+      <p class="subtitle">Speeding with {{ mpps }} mpps ({{ mbps }} mbps)</p>
       <div class="table-container">
-        <table class="table">
+        <table class="table is-hoverable is-striped">
           <thead>
             <tr>
               <th>UUID</th>
@@ -22,7 +23,7 @@
           </thead>
           <tbody>
             <tr v-for="val, key in reports" :key="key">
-              <td>{{ key }}</td>
+              <th>{{ key }}</th>
               <td>{{ val.SentBytes }}</td>
               <td>{{ val.SentPackets }}</td>
               <td>{{ val.LastError }}</td>
@@ -39,10 +40,22 @@
       el: '#app',
       data: {
         reports: {},
+        mpps: 0,
+        mbps: 0,
+      },
+      methods: {
+        getPacketSum(obj) {
+          return Object.values(obj).reduce((a, cv) => a += cv.SentPackets, 0);
+        },
+        getByteSum(obj) {
+          return Object.values(obj).reduce((a, cv) => a += cv.SentBytes, 0);
+        },
       },
       mounted() {
         setInterval(() => {
           axios.get('/xhr').then((resp) => {
+            this.mpps = Math.round((this.getPacketSum(resp.data) - this.getPacketSum(this.reports)) / 10000) / 100;
+            this.mbps = Math.round((this.getByteSum(resp.data) - this.getByteSum(this.reports)) / 1024 / 1024 * 800) / 100;
             this.reports = resp.data;
           });
         }, 1000);
