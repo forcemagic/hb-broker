@@ -1,6 +1,5 @@
 const express = require('express');
 const { v4 } = require('uuid');
-const IPCIDR = require('ip-cidr');
 const storage = require('./storage');
 
 const app = express();
