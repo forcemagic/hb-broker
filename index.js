@@ -18,6 +18,19 @@ app.post('/update/:uuid', (req, res) => {
   res.sendStatus(200);
 });
 
+app.get('/renew/:uuid/:ip', async (req, res) => {
+  const orig = storage.getValue(req.params.uuid);
+  const indx = orig.indexOf(req.params.ip);
+  if (indx === -1) {
+    return res.sendStatus(400);
+  }
+  orig.splice(indx, 1);
+  const newip = storage.getNextIp();
+  orig.push(newip);
+  await storage.setValue(req.params.uuid, orig);
+  return res.send(newip);
+});
+
 app.post('/register', async (_, res) => {
   const newUUID = v4();
   const newTargets = [];
