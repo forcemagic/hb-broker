@@ -11,6 +11,33 @@
     <div id="app" class="container">
       <h1 class="title">HB Broker</h1>
       <p class="subtitle">Speeding with {{ mpps }} mpps ({{ mbps }} mbps)</p>
+      <form v-if="!configLoading" @submit.prevent="submitConfig">
+        <div class="field">
+          <label class="label">Payload</label>
+          <div class="control">
+            <input type="text" class="input" v-model="config.Payload">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Port</label>
+          <div class="control">
+            <input type="number" class="input" v-model.number="config.Port">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Timeout</label>
+          <div class="control">
+            <input type="number" class="input" v-model.number="config.Timeout">
+          </div>
+        </div>
+        <div class="field">
+          <label class="checkbox">
+            <input type="checkbox" v-model="config.Enabled">
+            Enabled
+          </label>
+        </div>
+        <button class="button is-primary" type="submit" :class='{"is-loading": configSubmitting}'>Go!</button>
+      </form>
       <div class="table-container">
         <table class="table is-hoverable is-striped">
           <thead>
@@ -40,6 +67,9 @@
       el: '#app',
       data: {
         reports: {},
+        config: {},
+        configLoading: true,
+        configSubmitting: false,
         mpps: 0,
         mbps: 0,
       },
@@ -50,8 +80,18 @@
         getByteSum(obj) {
           return Object.values(obj).reduce((a, cv) => a += cv.SentBytes, 0);
         },
+        submitConfig() {
+          this.configSubmitting = true;
+          axios.post('/config', this.config).then(() => {
+            this.configSubmitting = false;
+          });
+        },
       },
       mounted() {
+        axios.get('/config').then((resp) => {
+          this.config = resp.data;
+          this.configLoading = false;
+        });
         setInterval(() => {
           axios.get('/xhr').then((resp) => {
             this.mpps = Math.round((this.getPacketSum(resp.data) - this.getPacketSum(this.reports)) / 10000) / 100;
