@@ -13,6 +13,30 @@
       <p class="subtitle">Speeding with {{ mpps }} mpps ({{ mbps }} mbps)</p>
       <form v-if="!configLoading" @submit.prevent="submitConfig">
         <div class="field">
+          <label class="label">IP Configuration</label>
+          <div v-for="ip, i in config.IPs" :key="i" class="field is-horizontal">
+            <div class="field-body">
+              <div class="field has-addons is-horizontal">
+                <div v-for="ipstart, j in config.IPs[i].Start" :key="'ips-'+j" class="control">
+                  <input type="text" class="input" placeholder="Start" style="width: 50px; text-align: right;" v-model.number="config.IPs[i].Start[j]">
+                </div>
+                <div class="control">
+                  <a class="button is-static">-</a>
+                </div>
+                <div v-for="ipstart, j in config.IPs[i].End" :key="'ipe-'+j" class="control">
+                  <input type="text" class="input" placeholder="End" style="width: 50px; text-align: right;" v-model.number="config.IPs[i].End[j]">
+                </div>
+                <div v-if="config.IPs.length > 1" class="control">
+                  <button class="button is-danger" @click.prevent="delIp(i)">Del</button>
+                </div>
+                <div v-if="i == config.IPs.length-1" class="control">
+                  <button class="button is-info" @click.prevent="addIp">Add</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
           <label class="label">Payload</label>
           <div class="control">
             <input type="text" class="input" v-model="config.Payload">
@@ -85,6 +109,12 @@
           axios.post('/config', this.config).then(() => {
             this.configSubmitting = false;
           });
+        },
+        addIp() {
+          this.config.IPs.push({Start:[0,0,0,0], End:[0,0,0,0]});
+        },
+        delIp(indx) {
+          this.config.IPs.splice(indx, 1);
         },
       },
       mounted() {
